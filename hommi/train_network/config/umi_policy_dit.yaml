@@ -1,0 +1,57 @@
+# fits in 46gb
+# note that the original UMI config for diffusion transformer uses the `get_optimizer` method in diffusion_transformer_timm_policy.py which as custom learning rate for the obs_encoder. In this repo we do not do that and have fixed LR for the entire network.
+
+defaults:
+  - umi_policy_base
+  - model: diffusion_dit
+
+dataloader:
+  batch_size: 16
+  num_workers: 8
+  shuffle: True
+  pin_memory: False
+  persistent_workers: False
+  drop_last: True
+
+val_dataloader:
+  batch_size: 16
+  num_workers: 8
+  shuffle: False
+  pin_memory: False
+  persistent_workers: False
+  drop_last: True
+
+optimizer:
+  lr: 7.5e-5
+  weight_decay: 1.0e-6
+  obs_encoder_lr: 7.5e-6 # 1/10 of the main lr
+  obs_encoder_weight_decay: 1.0e-6
+  betas: [0.95, 0.999]
+
+training:
+  seed: 42
+  debug: False
+  resume: False
+  # optimization
+  lr_scheduler: cosine
+  lr_warmup_steps: 50
+  num_epochs: 1000
+  gradient_accumulate_every: 1
+  # EMA destroys performance when used with BatchNorm
+  # replace BatchNorm with GroupNorm.
+  use_ema: True
+  freeze_encoder: False
+  # training loop control
+  # in epochs
+  visualize_every: 20
+  val_every: 10
+  sample_every: 10
+  sample_min_size: 5
+  # steps per epoch
+  max_train_steps: null
+  max_val_steps: null
+  # misc
+  tqdm_interval_sec: 1.0
+  mixed_precision: 'no'
+  log_grad_norm_every: 50
+  clip_grad_norm: 5

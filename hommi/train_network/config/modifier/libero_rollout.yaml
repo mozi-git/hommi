@@ -1,0 +1,17 @@
+# @package _global_
+
+# to run this you should set config name to one of the libero policy configs like:
+# python train.py --config-name=libero_policy_dunet +modifier=libero_rollout
+
+name: libero_policy_rollout
+
+_target_: hommi.train_network.workspace.rollout_policy_workspace.RolloutPolicyWorkspace
+
+rollout:
+  checkpoint_path: null # if you use checkpointing method from normal model training
+  policy_only_checkpoint_path: null # if you directly save the state dict of a policy network manually
+  replay_dataset_action: false # if you want to use the action from the replay dataset, otherwise it will use the action from the policy network
+
+task:
+  env_runner:
+    replay_dataset_action: ${...rollout.replay_dataset_action}

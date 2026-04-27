@@ -1,0 +1,119 @@
+name: singletask_umi_policy
+
+obs_down_sample_steps: 3 # relative to 60Hz data collection for all data except ultrawide
+ultrawide_down_sample_steps: 1 # relative to 10Hz data collection of ultrawide
+
+low_dim_obs_horizon: 2
+img_obs_horizon: 2
+action_horizon: 16
+ignore_proprioception: False
+
+shape_meta: &shape_meta
+  image_resolution: 224
+  obs:
+    camera0_main_rgb:
+      shape: [3, 224, 224]
+      horizon: ${task.img_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # int
+      type: rgb
+      ignore_by_policy: False
+    camera0_ultrawide_rgb:
+      shape: [3, 224, 224]
+      horizon: ${task.img_obs_horizon} # int
+      down_sample_steps: ${task.ultrawide_down_sample_steps} # int
+      type: rgb
+      ignore_by_policy: False
+    robot0_eef_pos:
+      shape: [3]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+    # robot0_eef_pos_abs:
+    #   shape: [1]
+    #   axis: [2] # 2 means z-axis
+    #   horizon: ${task.low_dim_obs_horizon} # int
+    #   down_sample_steps: ${task.obs_down_sample_steps} # float
+    #   type: low_dim
+    # robot0_eef_rot_axis_angle_abs:
+    #   shape: [2]
+    #   axis: [0, 1] # yaw and pitch
+    #   horizon: ${task.low_dim_obs_horizon} # int
+    #   down_sample_steps: ${task.obs_down_sample_steps} # float
+    #   type: low_dim
+    robot0_eef_rot_axis_angle:
+      raw_shape: [3]
+      shape: [6]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      rotation_rep: rotation_6d
+      ignore_by_policy: ${task.ignore_proprioception}
+    robot0_gripper_width:
+      shape: [1]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+
+    # pose with respect to episode start
+    # robot0_eef_pos_wrt_start:
+    #   shape: [3]
+    #   horizon: ${task.low_dim_obs_horizon} # int
+    #   down_sample_steps: ${task.obs_down_sample_steps} # float
+    #   type: low_dim
+    #   ignore_by_policy: ${task.ignore_proprioception}
+    robot0_eef_rot_axis_angle_wrt_start:
+      raw_shape: [3]
+      shape: [6]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      in_replay_buffer: false # this key in not stored directly in the replay buffer. Instead it is computed by from the other sampled data
+  action: 
+    shape: [10]
+    horizon: ${task.action_horizon}
+    down_sample_steps: ${task.obs_down_sample_steps} # int
+    rotation_rep: rotation_6d
+
+task_name: &task_name ${name}
+dataset_path: example_demo_session/dataset.zarr.zip
+pose_repr: &pose_repr
+  obs_pose_repr: relative # abs or rel
+  action_pose_repr: relative # abs or rel or delta
+
+env_runner:
+  _target_: diffusion_policy.env_runner.real_pusht_image_runner.RealPushTImageRunner
+
+eval_image_transforms:
+  _target_: hommi.train_network.common.augmentation.ImageAugmentation
+  shape_meta: ${shape_meta}
+  transforms:
+    - type: CenterCrop
+      ratio: 0.95
+
+train_image_transforms:
+  _target_: hommi.train_network.common.augmentation.ImageAugmentation
+  shape_meta: ${shape_meta}
+  transforms:
+    - type: RandomCrop
+      ratio: 0.95
+    - _target_: torchvision.transforms.ColorJitter
+      brightness: 0.3
+      contrast: 0.4
+      saturation: 0.5
+      hue: 0.08
+
+dataset:
+  _target_: hommi.train_network.dataset.umi_task_dataset.UmiTaskDataset
+  shape_meta: ${shape_meta}
+  dataset_path: ${task.dataset_path}
+  cache_dir: null
+  pose_repr: *pose_repr
+  action_padding: true
+  sparse_query_frequency_down_sample_steps: 1
+  temporally_independent_normalization: False
+  seed: 42
+  val_ratio: 0.05
+  discard_nan_pointmap_frames: false

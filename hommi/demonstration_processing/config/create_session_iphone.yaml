@@ -1,0 +1,18 @@
+demonstrations_dir: tmp_demonstrations_old
+sessions_dir: tmp_sessions
+input_name_filters: []
+input_session_filters: ['box']
+output_session_name: 'box-v1'
+max_demos: -1
+overwrite: false
+skip_demos_path: '/store/real/xuxm/hommi/hommi/demonstration_processing/tmp_demonstrations/abnormal.txt'
+# skip_demos_path: '/store/real/xuxm/hommi/hommi/demonstration_processing/tmp_demonstrations/abnormal_waiter2.txt' # Optional path listing demo names to skip (one per line)
+
+# don't log hydra job
+defaults:
+  - override hydra/job_logging: disabled
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .

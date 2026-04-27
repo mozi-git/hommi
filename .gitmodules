@@ -1,0 +1,6 @@
+[submodule "deps/universal_manipulation_interface"]
+	path = deps/universal_manipulation_interface
+	url = https://github.com/real-stanford/universal_manipulation_interface.git
+[submodule "deps/FoundationStereo"]
+	path = deps/FoundationStereo
+	url = https://github.com/NVlabs/FoundationStereo.git

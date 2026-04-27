@@ -1,0 +1,140 @@
+name: ego3d_head_umi_policy
+
+obs_down_sample_steps: 3 # relative to 60Hz data collection for all data except ultrawide
+ultrawide_down_sample_steps: 1 # relative to 10Hz data collection of ultrawide
+
+low_dim_obs_horizon: 2
+img_obs_horizon: 2
+point_obs_horizon: 2
+action_horizon: 32
+ignore_proprioception: False
+reference_frame: left
+
+shape_meta: &shape_meta
+  image_resolution: 512
+  obs:
+    camera_head_main_rgb:
+      shape: [3, 512, 512]
+      horizon: ${task.point_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # int
+      type: rgb
+      ignore_by_policy: True
+    camera_head_pointmap:
+      shape: [3, 512, 512]
+      horizon: ${task.point_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # int
+      type: pointmap
+      ignore_by_policy: False
+    camera_head_lookatpoint:
+      shape: [3]
+      horizon: ${task.low_dim_obs_horizon}
+      down_sample_steps: ${task.obs_down_sample_steps}
+      type: low_dim
+      ignore_by_policy: True
+      ignore_by_action: False
+    gripper_head_eef_pos:
+      shape: [3]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: True
+      ignore_by_action: True
+    gripper_head_eef_rot_axis_angle:
+      raw_shape: [3]
+      shape: [6]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: True
+      ignore_by_action: True
+    gripper_left_eef_pos:
+      shape: [3]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      ignore_by_action: False
+    gripper_left_eef_rot_axis_angle:
+      raw_shape: [3]
+      shape: [6]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      ignore_by_action: False
+    gripper_right_eef_pos:
+      shape: [3]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      ignore_by_action: False
+    gripper_right_eef_rot_axis_angle:
+      raw_shape: [3]
+      shape: [6]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      ignore_by_action: False
+    gripper_right_gripper_width:
+      shape: [1]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      ignore_by_action: False
+    gripper_left_gripper_width:
+      shape: [1]
+      horizon: ${task.low_dim_obs_horizon} # int
+      down_sample_steps: ${task.obs_down_sample_steps} # float
+      type: low_dim
+      ignore_by_policy: ${task.ignore_proprioception}
+      ignore_by_action: False
+  action:
+    shape: [23]
+    horizon: ${task.action_horizon}
+    down_sample_steps: ${task.obs_down_sample_steps} # int
+    rotation_rep: rotation_6d
+
+task_name: &task_name ${name}
+dataset_path: example_demo_session/dataset.zarr.zip
+pose_repr: &pose_repr
+  obs_pose_repr: relative # abs or rel
+  action_pose_repr: relative # abs or rel or delta
+
+env_runner:
+  _target_: diffusion_policy.env_runner.real_pusht_image_runner.RealPushTImageRunner
+
+eval_image_transforms:
+  _target_: hommi.train_network.common.augmentation.ImageAugmentation
+  shape_meta: ${shape_meta}
+  transforms:
+    camera_head_main_rgb: []
+
+train_image_transforms:
+  _target_: hommi.train_network.common.augmentation.ImageAugmentation
+  shape_meta: ${shape_meta}
+  transforms:
+    camera_head_main_rgb:
+      - _target_: torchvision.transforms.ColorJitter
+        brightness: 0.3
+        contrast: 0.4
+        saturation: 0.5
+        hue: 0.08
+
+dataset:
+  _target_: hommi.train_network.dataset.umi_task_dataset.UmiTaskDataset
+  shape_meta: ${shape_meta}
+  dataset_path: ${task.dataset_path}
+  cache_dir: null
+  pose_repr: *pose_repr
+  action_padding: false
+  sparse_query_frequency_down_sample_steps: 8
+  temporally_independent_normalization: False
+  seed: 42
+  val_ratio: 0.05
+  reference_frame: ${task.reference_frame}
+  crop_pointcloud: true
+  depth_range: [0.1, 3.0]
+  discard_nan_pointmap_frames: false

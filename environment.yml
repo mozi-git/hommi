@@ -1,0 +1,75 @@
+name: hommi
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - pytorch3d
+dependencies:
+  - python=3.10
+  - numpy==1.26.4
+  - pillow
+  - quaternion
+  - plotly
+  - scipy
+  - transforms3d
+  - flask-socketio
+  - simple-websocket
+  - matplotlib
+  - opencv
+  - tqdm
+  - pandas
+  - av
+  - colorama
+  - exiftool=12
+  - zarr=2.16
+  - numcodecs=0.11
+  - pyyaml
+  - cmake=3.26.0
+  - make
+  - safetensors=0.5.3
+  - pytorch=2.1.0
+  - pytorch-cuda=12.1 # comment this out if on MacOS
+  - pytorch3d # comment this out if on MacOS
+  - torchvision=0.16.0
+  - hydra-core=1.2.0
+  - accelerate=0.24
+  - dill=0.3.7
+  - einops=0.6.1
+  - diffusers=0.18.2
+  - transformers==4.28.0
+  - timm=0.9.7
+  - wandb=0.15.8
+  - numba==0.61.2
+  - click
+  - pyzmq
+  - pynput
+  - qrcode
+  - easydict==1.9 
+  - cloudpickle==2.1.0
+  - ipykernel
+  - lxml<5.0.0
+  - gdown
+  - gym=0.21.0
+  - pymunk=6.2.1
+  - shapely=1.8.4
+  - scikit-image=0.19.3
+  - patchelf
+  - seaborn
+  - pip
+  - pip:
+    - line_profiler
+    - open3d # for some reason open3d.visualization.rendering.OffscreenRenderer is only present in pip version and not in conda version
+    - record3d
+    - PyExifTool==0.5
+    - imagecodecs==2023.9.18
+    - threadpoolctl==3.2
+    - numpy==1.26.4
+    - atomics
+    - spnav @ https://github.com/cheng-chi/spnav/archive/c1c938ebe3cc542db4685e0d13850ff1abfdb943.tar.gz
+    - huggingface_hub==0.25.2
+    - -e . # install `hommi` package
+
+    # for FoundationStereo
+    - trimesh
+    - transformations
+    - xformers==0.0.28.post1

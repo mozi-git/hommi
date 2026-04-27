@@ -1,0 +1,38 @@
+exp_name: "default"
+group_tag: "default"
+task_name: ${task.name}
+
+_target_: hommi.train_network.workspace.train_policy_workspace.TrainPolicyWorkspace
+# output_dir: /home/xiaomengxu/hommi/hommi/train_network/runs/2025.07.31/19.53.17_umi_policy_bimanual_umi_policy_diffusion_transformer_timm_default
+
+shape_meta: ${task.shape_meta}
+
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  inv_gamma: 1.0
+  max_value: 0.9999
+  min_value: 0.0
+  power: 0.75
+  update_after_step: 0
+
+logging:
+  project: hommi
+  resume: False
+  mode: online
+  name: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}_${model.name}_${exp_name}
+  tags: ["${name}", "${task_name}", "${exp_name}", "${group_tag}"]
+  id: null
+  group: null
+
+multi_run:
+  run_dir: runs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}_${model.name}_${exp_name}
+  wandb_name_base: ${now:%Y.%m.%d-%H.%M.%S}_${name}_${task_name}_${model.name}_${exp_name}
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: runs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}_${model.name}_${exp_name}
+  sweep:
+    dir: runs/${now:%Y.%m.%d}/${now:%H.%M.%S}_${name}_${task_name}_${model.name}_${exp_name}
+    subdir: ${hydra.job.num}

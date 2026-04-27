@@ -1,0 +1,53 @@
+_target_: hommi.train_network.policy.diffusion_transformer_timm_policy.DiffusionTransformerTimmPolicy
+name: diffusion_transformer_timm
+
+shape_meta: ${shape_meta}
+
+n_emb: 768
+
+noise_scheduler:
+  _target_: diffusers.DDIMScheduler
+  num_train_timesteps: 50
+  beta_start: 0.0001
+  beta_end: 0.02
+  # beta_schedule is important
+  # this is the best we found
+  beta_schedule: squaredcos_cap_v2
+  clip_sample: True
+  set_alpha_to_one: True
+  steps_offset: 0
+  prediction_type: epsilon # or sample
+
+obs_encoder:
+  _target_: hommi.train_network.model.vision_3d.transformer_obs3d_encoder.TransformerObs3DEncoder
+  shape_meta: ${shape_meta}
+  model_name: 'vit_base_patch16_clip_224.openai'
+  # model_name: 'vit_small_patch14_dinov2.lvd142m'  # 518*518 images
+  # model_name: 'vit_small_patch8_224.dino'
+  # model_name: 'convnext_base.clip_laion2b_augreg_ft_in12k'
+  global_pool: ''
+  train_image_transforms: ${...task.train_image_transforms}
+  eval_image_transforms: ${...task.eval_image_transforms}
+  n_emb: ${..n_emb}
+  pretrained: True
+  frozen: False
+  use_group_norm: True
+  share_rgb_model: False
+  # 'cls' or 'avg' or 'max' or 'soft_attention' or 'spatial_embedding' or 'transformer' or 'attention_pool_2d'
+  feature_aggregation: 'cls'
+  use_vision_norm: True
+
+  pointcloud_model_name: 'vit_base_patch14_dinov2.lvd142m'
+  freeze_pointcloud_model: True
+  hidden_dim: 768
+  position_embedding_dim: 60
+  xyz_proj_type: 'nerf'
+  num_points: 512
+  downsample_mode: 'feat'
+  do_crop: True
+
+num_inference_steps: 16
+input_pertub: 0.1 # reference: https://github.com/forever208/DDPM-IP
+n_layer: 7
+n_head: 8
+p_drop_attn: 0.1

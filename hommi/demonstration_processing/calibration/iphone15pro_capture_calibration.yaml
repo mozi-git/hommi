@@ -1,0 +1,13 @@
+wide:
+  intrinsics: [[1303.1525, 0., 953.19354], [0., 1303.1525, 723.9154], [0., 0., 1.]]
+depth: # obtained from the data collection setup
+  intrinsicMatrix: [[173.8, 0., 127.1], [0., 173.8, 96.5], [0., 0., 1.]]
+  lensDistortionCenter:
+    x: TODO
+    y: TODO
+  pixelSize: TODO
+  intrinsicMatrixReferenceDimensions:
+    width: 256
+    height: 192
+  lensDistortionLookupTable: TODO
+  inverseLensDistortionLookupTable: TODO  
