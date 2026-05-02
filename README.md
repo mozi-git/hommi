@@ -42,20 +42,24 @@ export PYTHONPATH="$HOMMI_UMI_ROOT:$HOMMI_ROOT:${PYTHONPATH}"
 ```
 
 ## Process HoMMI demonstrations
+```bash
+cd hommi/demonstration_processing
+```
+
 ### Group, time align and visualize demonstrations
 ```bash
-python hommi/demonstration_processing/process_demos_iphone.py group.iphone_dir=iphone_data filters.session_name=test
+python process_demos_iphone.py group.iphone_dir=iphone_data filters.session_name=test
 ```
 
 ### Create a data session
 Set input session filters and output session name in yaml config file
 ```bash
-python hommi/demonstration_processing/create_session_iphone.py
+python create_session_iphone.py input_session_filters=test output_session_name=test
 ```
 
 ### Build a dataset from the session
 ```bash
-python hommi/demonstration_processing/build_umi_dataset_iphone.py session_dir=tmp_sessions/test
+python build_umi_dataset_iphone.py session_dir=tmp_sessions/test
 # generates dataset_plan.pkl and dataset.zarr.zip
 ```
 

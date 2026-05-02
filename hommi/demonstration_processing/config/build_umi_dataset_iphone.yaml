@@ -14,7 +14,6 @@ replay_buffer:
   num_workers: 16
   episode_keep_ratio: 1.0 # Keep only the first portion of each episode (0-1]
   episode_keep_ratio_name_filter: 
-    - "2026-01-17"
     - "2026-01-18" # Apply keep ratio only when episode name contains this string or any in list
   save_pointmap: true
   save_pointmap_side: 'head'

@@ -8,7 +8,6 @@ from process_stages.calibrate import calibrate_gripper_range_iphone
 from process_stages.visualize import visualize_iphone_data, visualize_aligned_iphone_data
 from process_stages.label import auto_label
 from process_stages.align import align_multi_iphone_data
-from process_stages.overwrite_gripper_name import overwrite_gripper
 from process_stages.visualize_pointmap import visualize_pointmap_alignment
 
 @hydra.main(version_base="1.2", config_name="process_demos_iphone", config_path="./config")
@@ -29,8 +28,6 @@ def main(cfg: DictConfig):
     if 'group' in stages:
         print(blue("--- GROUPING STAGE ---"))
         group_iphone_data(cfg.group)
-
-    overwrite_gripper(get_demonstration_iterator)
 
     if 'detect' in stages:
         print(blue("\n--- DETECT AR TAG STAGE ---"))
