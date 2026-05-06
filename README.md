@@ -2,6 +2,7 @@
 [[Project page]](https://hommi-robot.github.io)
 [[Paper]](https://arxiv.org/abs/2603.03243)
 [[Video]](https://youtu.be/0rPr9DbPfuo?si=mssJLSQCmZ-V3hzW)
+[[Hardware]](https://drive.google.com/drive/folders/11eYyGpZgONSzI9i9WdD2V2F-GlcFdUVo?usp=share_link)
 
 [Xiaomeng Xu](https://xxm19.github.io/)<sup>1,2</sup>,
 [Jisang Park](https://jisangpark.com)<sup>1</sup>,
