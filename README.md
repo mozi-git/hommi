@@ -11,6 +11,7 @@
 [Aditya Bhat](https://www.linkedin.com/in/mradityabhat/)<sup>2</sup>,
 [Jose Barreiros](https://www.josebarreiros.com)<sup>2</sup>,
 [Dian Wang](https://www.dianwang.io/)<sup>1</sup>,
+[Jeannette Bohg](https://web.stanford.edu/~bohg/)<sup>1</sup>,
 [Shuran Song](https://shurans.github.io/)<sup>1</sup>
 
 <sup>1</sup>Stanford University,  
@@ -34,12 +35,13 @@ conda install -c dglteam/label/th24_cu124 dgl
 ```
 
 ### Set PYTHONPATH for local dependencies
-This repo depends on local sources from `deps/universal_manipulation_interface` (e.g. `diffusion_policy`, `umi`).
+This repo depends on local sources from `deps/universal_manipulation_interface` (e.g. `diffusion_policy`, `umi`) and the RBY1 WBC submodule at `deps/rby1-wbc`.
 Add this to your shell config (e.g. `~/.zshrc`), then reload the shell:
 ```bash
 export HOMMI_ROOT=/path/to/hommi
 export HOMMI_UMI_ROOT="$HOMMI_ROOT/deps/universal_manipulation_interface"
-export PYTHONPATH="$HOMMI_UMI_ROOT:$HOMMI_ROOT:${PYTHONPATH}"
+export HOMMI_RBY1_WBC_ROOT="$HOMMI_ROOT/deps/rby1-wbc"
+export PYTHONPATH="$HOMMI_UMI_ROOT:$HOMMI_RBY1_WBC_ROOT:$HOMMI_ROOT:${PYTHONPATH}"
 ```
 
 ## Process HoMMI demonstrations
@@ -74,9 +76,19 @@ multi-gpu training:
 accelerate launch --mixed_precision bf16 --num_processes 8 --multi_gpu --gradient_accumulation_steps 4 -- /path/to/train.py [args...]
 ```
 
-## Policy inference
+## Deployment
+### Robot, camera, and WBC setup
+Deployment code lives under `hommi/deployment`:
+
+- Camera setup: see `hommi/deployment/camera/README.md`. edit `hommi/deployment/config/camera.yaml` for camera serials, mock mode, frame rate, and binning. use `python -m hommi.deployment.camera_stream_viewer` to inspect streams.
+- WBC/WBIK setup: initialize `deps/rby1-wbc`, then follow `deps/rby1-wbc/control/README.md` to build the RBY1 realtime controller pybind module and configure `deps/rby1-wbc/config/wbc.yaml` / `deps/rby1-wbc/config/wbik.yaml`.
+
+### Policy rollout
+Run these in separate terminals (in the same hommi conda environment):
+
 ```bash
-python hommi/deployment/policy_server.py
+python -m hommi.deployment.policy_server -i checkpoint_path
+python -m hommi.deployment.rby1_wbc_policy
 ```
 
 ## 📜 Citation
@@ -95,10 +107,3 @@ This repository is released under the MIT license. See [LICENSE](https://github.
 ## 🙏 Acknowledgement
 - Our diffusion policy implementation is adapted from [UMI](https://github.com/real-stanford/universal_manipulation_interface).
 - Our 3D visual encoder implementation is adapted from [Adapt3R](https://github.com/pairlab/Adapt3R).
-
-## Code Release TODOs (stay tuned!)
-<ul>
-  <li><input type="checkbox" disabled> iPhone app code</li>
-  <li><input type="checkbox" disabled> Data and checkpoints upload</li>
-  <li><input type="checkbox" disabled> Whole-body controller and robot deployment code</li>
-</ul>

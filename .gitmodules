@@ -4,3 +4,6 @@
 [submodule "deps/FoundationStereo"]
 	path = deps/FoundationStereo
 	url = https://github.com/NVlabs/FoundationStereo.git
+[submodule "deps/rby1-wbc"]
+	path = deps/rby1-wbc
+	url = https://github.com/real-stanford/rby1-wbc.git
