@@ -34,7 +34,7 @@ obs_encoder:
   # model_name: 'resnet34.a1_in1k'
   # model_name: 'vit_base_patch16_clip_224.openai'
   # model_name: 'dinov3-vits16-pretrain-lvd1689m'
-  model_name: 'dinov3-vitb16-pretrain-lvd1689m'
+  model_name: '/root/.cache/modelscope/hub/models/facebook/dinov3-vitb16-pretrain-lvd1689m'
   # model_name: 'vit_small_patch14_reg4_dinov2.lvd142m'  # 518*518 images
   # model_name: 'vit_small_patch8_224.dino'
   # model_name: 'convnext_base.clip_laion2b_augreg_ft_in12k'
@@ -56,7 +56,7 @@ obs_encoder:
 
   # pointcloud_model_name: 'vit_base_patch14_dinov2.lvd142m'
   # pointcloud_model_name: 'dinov3-vits16-pretrain-lvd1689m'
-  pointcloud_model_name: 'dinov3-vitb16-pretrain-lvd1689m'
+  pointcloud_model_name: '/root/.cache/modelscope/hub/models/facebook/dinov3-vitb16-pretrain-lvd1689m'
   freeze_pointcloud_model: False
   share_pointcloud_model: True
   position_embedding_dim: 60

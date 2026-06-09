@@ -7,6 +7,7 @@ It adds the following features:
 
 import copy
 from typing import Optional
+from pathlib import Path
 
 import timm
 import numpy as np
@@ -223,10 +224,13 @@ class DiTObsEncoder(ModuleAttrMixin):
                     'dinov3-vitl16': 'facebook/dinov3-vitl16-pretrain-lvd1689m',
                 }
                 hf_model_name = None
-                for key, value in model_mapping.items():
-                    if key in model_name.lower():
-                        hf_model_name = value
-                        break
+                if Path(os.path.expanduser(model_name)).exists():
+                    hf_model_name = os.path.expanduser(model_name)
+                else:
+                    for key, value in model_mapping.items():
+                        if key in model_name.lower():
+                            hf_model_name = value
+                            break
 
                 if hf_model_name is None:
                     hf_model_name = model_name

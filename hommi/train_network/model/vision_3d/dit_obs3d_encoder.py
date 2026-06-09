@@ -1,6 +1,7 @@
 import os
 import copy
 from typing import Optional
+from pathlib import Path
 
 import einops
 import torch
@@ -365,10 +366,13 @@ class DiTObs3DEncoder(ModuleAttrMixin, PointCloudBaseEncoder):
                     'dinov3-vitl16': 'facebook/dinov3-vitl16-pretrain-lvd1689m',
                 }
                 hf_model_name = None
-                for key, value in model_mapping.items():
-                    if key in model_name.lower():
-                        hf_model_name = value
-                        break
+                if Path(os.path.expanduser(model_name)).exists():
+                    hf_model_name = os.path.expanduser(model_name)
+                else:
+                    for key, value in model_mapping.items():
+                        if key in model_name.lower():
+                            hf_model_name = value
+                            break
 
                 if hf_model_name is None:
                     # Fallback: assume the model_name is already a HuggingFace model ID
@@ -423,6 +427,17 @@ class DiTObs3DEncoder(ModuleAttrMixin, PointCloudBaseEncoder):
     def aggregate_feature(self, feature):
         # Return: B, N, C
 
+        if self._is_dinov3_model(self.model_name):
+            # DINOv3 returns a HuggingFace ModelOutput, not a plain tensor.
+            if self.feature_aggregation == 'cls' and self.head_wrist_attention != 'patch':
+                return feature.last_hidden_state[:, [0], :]
+            elif self.feature_aggregation == 'patch' or self.head_wrist_attention == 'patch':
+                num_register_tokens = getattr(self, "dinov3_num_register_tokens", 0)
+                return feature.last_hidden_state[:, 1 + num_register_tokens:, :]
+            # or use all tokens
+            assert self.feature_aggregation is None
+            return feature.last_hidden_state
+
         if self.model_name.startswith('vit'):
             # vit uses the CLS token
             if self.feature_aggregation == 'cls' and self.head_wrist_attention != 'patch':
@@ -433,16 +448,6 @@ class DiTObs3DEncoder(ModuleAttrMixin, PointCloudBaseEncoder):
             # or use all tokens
             assert self.feature_aggregation is None
             return feature
-        elif self.model_name.startswith('dinov3-vit'):
-            # dinov3-vit uses the CLS token
-            if self.feature_aggregation == 'cls' and self.head_wrist_attention != 'patch':
-                return feature.last_hidden_state[:, [0], :]
-            elif self.feature_aggregation == 'patch' or self.head_wrist_attention == 'patch':
-                num_register_tokens = self.key_model_map[self.pointmap_keys[0]].config.num_register_tokens
-                return feature.last_hidden_state[:, 1 + num_register_tokens:, :]
-            # or use all tokens
-            assert self.feature_aggregation is None
-            return feature.last_hidden_state
 
         feature = torch.flatten(feature, start_dim=-2) # B, 512, 7*7
         feature = torch.transpose(feature, 1, 2) # B, 7*7, 512
